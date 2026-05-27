@@ -4,19 +4,6 @@
 
 This repository contains a script-oriented Python implementation used alongside the simulation notebooks, together with utilities for visualization and mapping.
 
-## Citation
-
-If you use this code or the associated method, please cite the manuscript (update the entry once volume, issue, and DOI are available):
-
-Xuanwu Wang<sup>1,2#</sup>, Wenjun Fang<sup>1#</sup>, Yuqi Wang<sup>3#</sup>, Xingbo Guan<sup>2#</sup>, Nuo Li<sup>2</sup>, Yihao Bai<sup>4</sup>, Lixin Liang<sup>1</sup>, Heng Peng<sup>2</sup>, Wei Liu<sup>4*</sup>, Qishi Dong<sup>1*</sup>
-
-**COMPASS: In silico reconstruction of single-cell atlases from spatial omics data via precise cross-omics mapping.**
-
-Affiliations: <sup>1</sup>School of Artificial Intelligence, Shenzhen Technology University, Shenzhen 518118, China; <sup>2</sup>Department of Mathematics, Hong Kong Baptist University, Hong Kong; <sup>3</sup>Department of Statistics and Data Science, Beijing Normal–Hong Kong Baptist University, Zhuhai 519087, China; <sup>4</sup>School of Mathematics, Sichuan University, Chengdu 610065, China.
-
-<sup>#</sup>Equal contributions. <sup>*</sup>Corresponding authors.
-
-Submitted to *Genomics, Proteomics & Bioinformatics* (GPB). Replace this line with the full bibliographic citation after acceptance.
 
 ## Method overview (concise)
 
@@ -36,12 +23,12 @@ The paper additionally reports hidden Markov random field (HMRF)–based tissue 
 
 ## Requirements
 
-- Python 3.9 or newer is recommended (compatible with current `scanpy` / `anndata` stacks).
+- Python 3.10 or newer is recommended (compatible with current `scanpy` / `anndata` stacks).
 - Core packages: `numpy`, `pandas`, `anndata`, `scanpy`, `scikit-learn`, `scipy`, `matplotlib`, `torch`.
 
 PyTorch may use CUDA if available; the optimal-transport routines in `COMPASS_method.py` will select CUDA when present. CPU execution is supported but slower for large tensors.
 
-There is no `requirements.txt` in this repository; install dependencies with your preferred environment manager, for example:
+Install dependencies with your preferred environment manager, for example:
 
 ```bash
 python -m venv .venv
@@ -93,14 +80,6 @@ If `compass_outputs_ready` is true, `run_compass_model(..., skip_if_ready=True)`
 ## Running the default pipeline
 
 Default filenames are resolved relative to the `COMPASS/` directory (next to `COMPASS_run.py`): `ref_RNA.h5ad`, `simulation_rna_drop.h5ad`, `simulation_atac.h5ad`.
-
-From the repository root:
-
-```bash
-python COMPASS/COMPASS_run.py
-```
-
-Alternatively:
 
 ```bash
 cd COMPASS
