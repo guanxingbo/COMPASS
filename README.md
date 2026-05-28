@@ -107,6 +107,13 @@ main(Path("my_sc.h5ad"), Path("my_st_rna.h5ad"), Path("my_st_atac.h5ad"))
 
 No `LICENSE` file is included in this repository. Redistribution and reuse terms should be obtained from the authors or added here when decided.
 
+
+<!-- ## Authors
+Xuanwu Wang<sup>1,2#</sup>, Wenjun Fang<sup>1#</sup>, Yuqi Wang<sup>3#</sup>, Xingbo Guan<sup>2#</sup>, Nuo Li<sup>2</sup>, Yihao Bai<sup>4</sup>, Lixin Liang<sup>1</sup>, Heng Peng<sup>2</sup>, Wei Liu<sup>4*</sup>, Qishi Dong<sup>1*</sup>
+
+Affiliations: <sup>1</sup>School of Artificial Intelligence, Shenzhen Technology University, Shenzhen 518118, China; <sup>2</sup>Department of Mathematics, Hong Kong Baptist University, Hong Kong; <sup>3</sup>Department of Statistics and Data Science, Beijing Normal–Hong Kong Baptist University, Zhuhai 519087, China; <sup>4</sup>School of Mathematics, Sichuan University, Chengdu 610065, China. -->
+
+
 ## Contact
 
-For questions about the method or this code release, please contact the corresponding authors listed in the citation block above.
+For questions about the method or this code release, please contact the corresponding authors: Wei Liu ([liuwei8@scu.edu.cn](mailto:liuwei8@scu.edu.cn)), or Qishi Dong ([dongqishi@sztu.edu.cn](mailto:dongqishi@sztu.edu.cn)).
