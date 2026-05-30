@@ -5,13 +5,69 @@
 This repository contains a script-oriented Python implementation used alongside the simulation notebooks, together with utilities for visualization and mapping.
 
 
-## Method overview (concise)
+## Workflow overview
 
-The peer-reviewed manuscript describes COMPASS in three coupled parts: (i) a domain-aware representation module that aligns spots and dissociated cells in a shared RNA-centered latent space while transferring auxiliary spatial omics information where applicable (Residual-Gated Cross-Omics Distillation, RG-COD); (ii) a mapping module that stratifies cells and spots by predicted domain and cell type and solves entropy-regularized optimal transport within compatible strata, followed by capacity-constrained hard assignment; (iii) a geometric refinement step (Poisson-disk Geometric Refinement, PDGR) that assigns continuous coordinates within the spot-supported tissue region while encouraging minimum separation and type-coherent neighborhoods.
+The peer-reviewed manuscript describes COMPASS in three coupled parts—(i) domain-aware representation (RG-COD), (ii) domain-constrained mapping (entropy-regularized optimal transport with capacity-limited hard assignment), and (iii) geometric refinement (Poisson-disk Geometric Refinement, PDGR)—linked by the workflow below (manuscript Fig. 1).
+
+### 1. Spatial omics preprocessing and domain discovery
+
+Spatial transcriptomics, dissociated scRNA-seq, and optional co-registered auxiliary spatial omics are preprocessed; coarse spatial domains are inferred under GMM or HMRF priors to anchor downstream learning.
+
+<p align="center">
+  <img src="pictures/1_process.jpg" alt="Spatial omics preprocessing and spatial domain discovery" width="800">
+</p>
+
+*Figure 1. Spatial omics preprocessing and coarse domain delineation (GMM / HMRF).*
+
+The minimal `COMPASS_run.py` path expects **precomputed spot-level domain labels** on the spatial RNA object (`obs['domain']` or `obs['gt']`). HMRF-based domain initialization as in the manuscript is implemented in the `Scenario1`–`Scenario4` notebooks, not in the default script.
+
+### 2. Domain-aware multimodal representation (RG-COD)
+
+Multi-modal graph encoders and Residual-Gated Cross-Omics Distillation (RG-COD) align spatial spots and dissociated cells in a shared RNA-centered latent space while selectively transferring auxiliary spatial omics information into the deployable RNA backbone. Implemented in [`COMPASS/COMPASS_core.py`](COMPASS/COMPASS_core.py) via `train_multimodal_and_predict_sc`.
+
+<p align="center">
+  <img src="pictures/2_flow.jpg" alt="RG-COD multimodal training architecture" width="900">
+</p>
+
+*Figure 2. Domain-aware representation module: RNA and auxiliary encoders, RG-COD fusion, and multi-objective training losses.*
+
+### 3. Two-pass domain inference
+
+After training, a first pass assigns coarse domains to dissociated cells; balanced subsampling limits dominant cell types and drops low-confidence cells. A second pass refines spot and cell embeddings and domain assignments for spatial omics and the filtered scRNA-seq reference.
+
+<p align="center">
+  <img src="pictures/3_Inference.jpg" alt="Two-pass domain inference workflow" width="800">
+</p>
+
+*Figure 3. Two-pass domain inference with balanced single-cell subsampling.*
+
+Outputs are written to `sc_adata.obs['pred_domain']`, `sc_adata.obsm['pred_domain_proba']`, and spot-level embeddings in `adata_prep.obsm['gae_latent']` (see [Input data](#input-data-anndata) below).
+
+### 4. Spatial mapping and coordinate reconstruction (OT + PDGR)
+
+Cells and spots are stratified by predicted domain and cell type; entropy-regularized optimal transport yields soft cell-to-spot assignments within compatible strata, followed by capacity-constrained hard assignment. Poisson-disk Geometric Refinement (PDGR) then assigns continuous sub-spot coordinates under per-spot capacity, minimum separation, and type-coherent neighborhood constraints. Implemented in [`COMPASS/COMPASS_method.py`](COMPASS/COMPASS_method.py) and orchestrated by `run_four_figure_pipeline` in [`COMPASS/COMPASS_run.py`](COMPASS/COMPASS_run.py).
+
+<p align="center">
+  <img src="pictures/4_OT_maping.jpg" alt="Optimal transport mapping and Poisson-disk coordinate reconstruction" width="900">
+</p>
+
+*Figure 4. Entropy-regularized optimal transport, hard assignment, and Poisson-disk geometric refinement (PDGR).*
+
+### 5. Downstream and clinical analysis
+
+COMPASS reconstructs a high-resolution spatial single-cell atlas that supports marker visualization, spatial domain characterization, cell–cell communication analysis, and clinical cohort studies.
+
+<p align="center">
+  <img src="pictures/5_Downstream.jpg" alt="Downstream and clinical analysis enabled by COMPASS" width="800">
+</p>
+
+*Figure 5. High-resolution spatial single-cell atlas and downstream / clinical analyses enabled by COMPASS.*
+
+This panel is illustrative of manuscript Results; full reproduction of benchmarks and real-data analyses is provided in the `Scenario1`–`Scenario4` notebooks and the paper, not by the four diagnostic figures from `python COMPASS_run.py`.
 
 ## Relationship between this repository and the manuscript
 
-The paper additionally reports hidden Markov random field (HMRF)–based tissue domain initialization and full benchmark protocols across simulations and real datasets. In this repository, the graph autoencoder training path in `COMPASS/COMPASS_core.py` is a **minimal, script-friendly** port derived from the Scenario 4 multimodal notebook. It expects **spatial domain labels** on the spot-level RNA object (for example in `adata.obs['gt']`, which the driver copies to `domain` when needed), which matches the bundled simulation-style workflow. For full parity with every analysis in the manuscript, use the scenario notebooks under `Scenario1`–`Scenario4` or extend `run_compass_model` in `COMPASS_run.py` as noted in that file’s docstring.
+Steps 1 and 5 in the workflow above are covered in the manuscript and notebooks but are not fully automated in the minimal `COMPASS_run.py` path. The paper additionally reports hidden Markov random field (HMRF)–based tissue domain initialization and full benchmark protocols across simulations and real datasets. In this repository, the graph autoencoder training path in `COMPASS/COMPASS_core.py` is a **minimal, script-friendly** port derived from the Scenario 4 multimodal notebook. It expects **spatial domain labels** on the spot-level RNA object (for example in `adata.obs['gt']`, which the driver copies to `domain` when needed), which matches the bundled simulation-style workflow. For full parity with every analysis in the manuscript, use the scenario notebooks under `Scenario1`–`Scenario4` or extend `run_compass_model` in `COMPASS_run.py` as noted in that file’s docstring.
 
 ## Repository layout
 
@@ -86,7 +142,7 @@ cd COMPASS
 python COMPASS_run.py
 ```
 
-The script loads data, sets the global seed via `load_and_preprocess(..., run_seed=123)`, runs the multimodal model when outputs are not already present, then executes `run_four_figure_pipeline`: PCA of the GAE latent (cells filtered by maximum domain probability), stacked bar chart of cell types by predicted domain, spot-level composition pies after soft assignment, and cell-level spatial scatter after geometric refinement.
+The default script implements workflow steps 2–4 (representation, inference, OT + PDGR) and produces four diagnostic figures. It loads data, sets the global seed via `load_and_preprocess(..., run_seed=123)`, runs the multimodal model when outputs are not already present, then executes `run_four_figure_pipeline`: PCA of the GAE latent (cells filtered by maximum domain probability), stacked bar chart of cell types by predicted domain, spot-level composition pies after soft assignment, and cell-level spatial scatter after geometric refinement.
 
 `main()` in `COMPASS_run.py` currently accepts optional `Path` arguments in code but the `if __name__ == "__main__"` block invokes `main()` without command-line arguments. To use custom paths, import `main` from another module or edit the call, for example:
 
