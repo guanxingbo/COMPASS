@@ -19,7 +19,7 @@ Spatial transcriptomics, dissociated scRNA-seq, and optional co-registered auxil
 
 *Figure 1. Spatial omics preprocessing and coarse domain delineation (GMM / HMRF).*
 
-The minimal `COMPASS_run.py` path expects **precomputed spot-level domain labels** on the spatial RNA object (`obs['domain']` or `obs['gt']`). HMRF-based domain initialization as in the manuscript is implemented in the `Scenario1`–`Scenario4` notebooks, not in the default script.
+The minimal `COMPASS_run.py` path expects **precomputed spot-level domain labels** on the spatial RNA object (`obs['domain']` or `obs['gt']`). HMRF-based domain initialization, as in the manuscript, is implemented in the `Scenario1`–`Scenario4` notebooks, not in the default script.
 
 ### 2. Domain-aware multimodal representation (RG-COD)
 
